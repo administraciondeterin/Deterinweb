@@ -83,7 +83,12 @@ const App = () => {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const allowAnalytics = cookieConsent && cookieConsent.ad_storage === 'granted' && cookieConsent.analytics_storage === 'granted';
+  const enableAnalyticsEnv = (import.meta as any).env?.VITE_ENABLE_ANALYTICS === 'true';
+  const allowAnalytics = (
+    (import.meta as any).env?.PROD === true &&
+    enableAnalyticsEnv &&
+    cookieConsent && cookieConsent.ad_storage === 'granted' && cookieConsent.analytics_storage === 'granted'
+  );
 
   return (
     <HelmetProvider>

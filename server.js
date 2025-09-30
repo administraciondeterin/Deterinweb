@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const stripe = Stripe(process.env.VITE_STRIPE_SECRET_KEY);
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY || process.env.VITE_STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(express.json());
@@ -88,26 +88,56 @@ app.post('/api/order', async (req, res) => {
     }
     // Crear un ID único para el pedido
     const orderId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const total = items.reduce((sum, i) => sum + Number(i.price) * Number(i.quantity), 0);
+
     const order = {
       id: orderId,
       items,
       email,
       name: name || '',
-      status: 'pending',
+      status: 'confirmed',
       createdAt: new Date().toISOString(),
+      total,
     };
-    // Guardar pedido en local
+
+    // Guardar pedido en local (JSON)
     const orders = readOrders();
     orders.push(order);
     writeOrders(orders);
 
-    // Enviar correo de confirmación al usuario
-    const confirmUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/confirmar-pedido/${orderId}`;
+    // Construir resumen en HTML y texto plano
+    const itemsHtml = items.map(i => `
+      <li>${i.name} (${i.presentation}) x${i.quantity} — €${Number(i.price).toFixed(2)} (línea: €${(Number(i.price) * Number(i.quantity)).toFixed(2)})</li>
+    `).join('');
+    const resumenHtml = `
+      <h2>Resumen del pedido</h2>
+      <p><strong>Cliente:</strong> ${name || ''} &lt;${email}&gt;</p>
+      <ul>${itemsHtml}</ul>
+      <p><strong>Total:</strong> €${total.toFixed(2)}</p>
+      <p>Gracias por confiar en Deterín.</p>
+    `;
+    const itemsText = items.map(i => `- ${i.name} (${i.presentation}) x${i.quantity}: €${(Number(i.price) * Number(i.quantity)).toFixed(2)}`).join('\n');
+    const resumenText = `Cliente: ${name || ''} <${email}>\n\n${itemsText}\n\nTotal: €${total.toFixed(2)}`;
+
+    const fromAddr = `Deterín <${process.env.GMAIL_USER}>`;
+    const salesAddr = process.env.ORDER_RECEIVER || 'Deterin@deterin.com';
+
+    // Enviar al cliente
     await transporter.sendMail({
-      from: `Deterín <${process.env.GMAIL_USER}>`,
+      from: fromAddr,
       to: email,
-      subject: 'Confirma tu pedido en Deterín',
-      html: `<h2>Confirma tu pedido</h2><p>Haz clic en el siguiente enlace para confirmar tu pedido:</p><a href="${confirmUrl}">${confirmUrl}</a>`
+      subject: 'Hemos recibido tu pedido en Deterín',
+      text: `Gracias por tu pedido.\n\n${resumenText}`,
+      html: `<p>Gracias por tu pedido.</p>${resumenHtml}`
+    });
+
+    // Enviar al vendedor (Deterín)
+    await transporter.sendMail({
+      from: fromAddr,
+      to: salesAddr,
+      subject: `Nuevo pedido (${orderId}) de ${name || email}`,
+      text: resumenText,
+      html: resumenHtml
     });
 
     res.json({ success: true, orderId });
