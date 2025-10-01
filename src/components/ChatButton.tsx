@@ -2,7 +2,8 @@ import React from 'react';
 import { MessageCircle } from 'lucide-react';
 
 const ChatButton = () => {
-  const phone = '+34 608972248';
+  // Formato requerido por WhatsApp: solo dígitos, sin + ni espacios
+  const phone = '34608972248';
   const defaultMessage = 'Hola, vengo de la web de Deterín y necesito ayuda.';
   const whatsappHref = `https://wa.me/${phone}?text=${encodeURIComponent(defaultMessage)}`;
 
