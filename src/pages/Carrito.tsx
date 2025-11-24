@@ -13,6 +13,7 @@ const Carrito = () => {
   const [customerName, setCustomerName] = useState('');
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
   const [pedidoError, setPedidoError] = useState('');
+  const [emailPolicyAccepted, setEmailPolicyAccepted] = useState(false);
 
   const buildOrderPayload = () => ({
     items: items.map(i => ({
@@ -71,6 +72,10 @@ const Carrito = () => {
   };
 
   const processCheckout = async () => {
+    if (!emailPolicyAccepted) {
+      setPedidoError('Debes aceptar la Política de Privacidad para continuar.');
+      return;
+    }
     if (!customerEmail || !customerEmail.includes('@')) {
       alert('Por favor, introduce un email válido');
       return;
@@ -318,6 +323,23 @@ const Carrito = () => {
               placeholder="tu@email.com"
               className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <div className="flex items-start space-x-3 mb-3">
+              <input
+                id="acepto-privacidad-carrito"
+                name="acepto-privacidad-carrito"
+                type="checkbox"
+                checked={emailPolicyAccepted}
+                onChange={(e) => setEmailPolicyAccepted(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="acepto-privacidad-carrito" className="text-sm text-gray-700">
+                Acepto la{' '}
+                <a href="/privacidad" className="text-blue-600 underline" target="_blank" rel="noreferrer">
+                  Política de Privacidad
+                </a>
+                .
+              </label>
+            </div>
             {pedidoError && <div className="text-red-600 mb-2">{pedidoError}</div>}
             <div className="flex space-x-3">
               <button
@@ -328,7 +350,7 @@ const Carrito = () => {
               </button>
               <button
                 onClick={processCheckout}
-                disabled={isProcessing}
+                disabled={isProcessing || !emailPolicyAccepted}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
               >
                 {isProcessing ? 'Procesando...' : 'Continuar'}

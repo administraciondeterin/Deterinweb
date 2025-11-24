@@ -11,9 +11,16 @@ const Contacto = () => {
     telefono: '',
     mensaje: ''
   });
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [privacyError, setPrivacyError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptPrivacy) {
+      setPrivacyError('Debes aceptar la Política de Privacidad para enviar el formulario.');
+      return;
+    }
+    setPrivacyError('');
     // TODO: Handle form submission
     alert('Mensaje enviado. Nos pondremos en contacto contigo pronto.');
     setFormData({
@@ -23,6 +30,7 @@ const Contacto = () => {
       telefono: '',
       mensaje: ''
     });
+    setAcceptPrivacy(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -203,9 +211,31 @@ const Contacto = () => {
                 ></textarea>
               </div>
 
+              <div className="flex items-start space-x-3">
+                <input
+                  id="acepto-privacidad"
+                  name="acepto-privacidad"
+                  type="checkbox"
+                  checked={acceptPrivacy}
+                  onChange={(e) => setAcceptPrivacy(e.target.checked)}
+                  className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="acepto-privacidad" className="text-sm text-gray-700">
+                  Acepto la{' '}
+                  <a href="/privacidad" className="text-blue-600 underline" target="_blank" rel="noreferrer">
+                    Política de Privacidad
+                  </a>
+                  .
+                </label>
+              </div>
+              {privacyError && (
+                <p className="text-sm text-red-600 -mt-4">{privacyError}</p>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center space-x-2"
+                disabled={!acceptPrivacy}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center space-x-2"
               >
                 <Send className="w-5 h-5" />
                 <span>Enviar mensaje</span>

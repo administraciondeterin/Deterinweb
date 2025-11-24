@@ -56,6 +56,17 @@ const Footer = () => {
     setTimeout(() => setShowConsentToast(null), 3000);
   };
 
+  const openCookieSettings = () => {
+    try {
+      const saved = localStorage.getItem('cookieConsent');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAnalyticsConsent(parsed?.analytics_storage === 'granted');
+      }
+    } catch {}
+    setShowCookieBanner(true);
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -175,6 +186,20 @@ const Footer = () => {
           {showConsentToast}
         </div>
       )}
+
+      {/* Botón flotante siempre visible para gestionar cookies */}
+      <button
+        type="button"
+        onClick={openCookieSettings}
+        aria-label="Configurar cookies"
+        className="fixed bottom-4 left-4 z-[60] rounded-full bg-white border border-gray-300 shadow-lg hover:shadow-xl transition-all p-3 flex items-center justify-center group"
+        title="Configurar cookies"
+      >
+        <span className="text-2xl leading-none select-none">🍪</span>
+        <span className="ml-2 hidden sm:inline text-sm font-medium text-gray-700 group-hover:text-gray-900">
+          Cookies
+        </span>
+      </button>
     </footer>
   );
 };
