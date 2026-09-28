@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 
+const WHATSAPP_PHONE = '34916063528';
+
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -11,11 +13,12 @@ const ChatButton = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim()) {
-      // TODO: Integrate with a real chat system
-      alert(`Mensaje enviado: ${message}`);
-      setMessage('');
-    }
+    const text = message.trim();
+    if (!text) return;
+
+    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setMessage('');
   };
 
   return (
@@ -54,11 +57,13 @@ const ChatButton = () => {
               />
               <button
                 type="submit"
+                aria-label="Enviar por WhatsApp"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r-lg transition-colors"
               >
                 <Send className="w-5 h-5" />
               </button>
             </div>
+            <p className="text-xs text-gray-500 mt-2">Se abre WhatsApp con tu mensaje.</p>
           </form>
         </div>
       ) : (
