@@ -10,49 +10,8 @@ const Carrito = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [customerEmail, setCustomerEmail] = useState('');
-  const [customerName, setCustomerName] = useState('');
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
   const [pedidoError, setPedidoError] = useState('');
-  const [emailPolicyAccepted, setEmailPolicyAccepted] = useState(false);
-
-  const buildOrderPayload = () => ({
-    items: items.map(i => ({
-      id: i.id,
-      name: i.name,
-      price: i.price,
-      quantity: i.quantity,
-      presentation: i.presentation,
-      image: i.image,
-      lineTotal: Number((i.price * i.quantity).toFixed(2))
-    })),
-    total: Number(total.toFixed(2)),
-    email: customerEmail || undefined,
-    name: customerName || undefined,
-    createdAt: new Date().toISOString()
-  });
-
-  const copyOrderJson = async () => {
-    try {
-      const json = JSON.stringify(buildOrderPayload(), null, 2);
-      await navigator.clipboard.writeText(json);
-      alert('Pedido copiado en el portapapeles');
-    } catch (e) {
-      alert('No se pudo copiar. Intenta descargar el JSON.');
-    }
-  };
-
-  const downloadOrderJson = () => {
-    const json = JSON.stringify(buildOrderPayload(), null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pedido-deterin.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
@@ -72,10 +31,6 @@ const Carrito = () => {
   };
 
   const processCheckout = async () => {
-    if (!emailPolicyAccepted) {
-      setPedidoError('Debes aceptar la Política de Privacidad para continuar.');
-      return;
-    }
     if (!customerEmail || !customerEmail.includes('@')) {
       alert('Por favor, introduce un email válido');
       return;
@@ -83,45 +38,31 @@ const Carrito = () => {
     setIsProcessing(true);
     setPedidoError('');
     try {
-      const order = buildOrderPayload();
-      const emailCheckoutEnabled = (import.meta as any).env?.VITE_ENABLE_EMAIL_CHECKOUT === 'true';
-
-      if (emailCheckoutEnabled) {
-        try {
-          const res = await fetch('/api/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: order.items, email: customerEmail, name: customerName })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            setShowEmailModal(false);
-            setPedidoEnviado(true);
-            clearCart();
-            return;
-          }
-          setPedidoError(data?.error || 'No se pudo enviar el pedido (backend). Usaremos el correo local.');
-        } catch (err) {
-          setPedidoError('Servidor no disponible. Usaremos el correo local.');
-        }
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(i => ({
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            presentation: i.presentation,
+            image: i.image
+          })),
+          email: customerEmail
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowEmailModal(false);
+        setPedidoEnviado(true);
+        clearCart();
+      } else {
+        setPedidoError(data.error || 'No se pudo enviar el pedido.');
       }
-
-      // Fallback: abrir cliente de correo local
-      const subject = encodeURIComponent('Pedido Deterín');
-      const lines = [
-        'Gracias por tu pedido. Este es el resumen:\n',
-        customerName ? `Cliente: ${customerName} <${customerEmail}>\n` : `Cliente: <${customerEmail}>\n`,
-        ...order.items.map(i => `- ${i.name} (${i.presentation}) x${i.quantity}: €${(i.price * i.quantity).toFixed(2)}`),
-        `\nTotal: €${order.total.toFixed(2)}`
-      ];
-      const body = encodeURIComponent(lines.join('\n'));
-      const mailtoHref = `mailto:?subject=${subject}&body=${body}`;
-      window.location.href = mailtoHref;
-      setShowEmailModal(false);
-      setPedidoEnviado(true);
-      clearCart();
     } catch (e) {
-      setPedidoError('No se pudo preparar el pedido.');
+      setPedidoError('Error de conexión al enviar el pedido.');
     } finally {
       setIsProcessing(false);
     }
@@ -274,8 +215,6 @@ const Carrito = () => {
               )}
             </button>
 
-            
-
             <div className="text-sm text-gray-600 space-y-2">
               <p>✓ Envío rápido 24-72h</p>
               <p>✓ Productos de alta calidad</p>
@@ -310,36 +249,12 @@ const Carrito = () => {
               Introduce tu email para recibir la confirmación del pedido y el seguimiento del envío.
             </p>
             <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Tu nombre y apellidos"
-              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
               type="email"
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
               placeholder="tu@email.com"
               className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="flex items-start space-x-3 mb-3">
-              <input
-                id="acepto-privacidad-carrito"
-                name="acepto-privacidad-carrito"
-                type="checkbox"
-                checked={emailPolicyAccepted}
-                onChange={(e) => setEmailPolicyAccepted(e.target.checked)}
-                className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="acepto-privacidad-carrito" className="text-sm text-gray-700">
-                Acepto la{' '}
-                <a href="/privacidad" className="text-blue-600 underline" target="_blank" rel="noreferrer">
-                  Política de Privacidad
-                </a>
-                .
-              </label>
-            </div>
             {pedidoError && <div className="text-red-600 mb-2">{pedidoError}</div>}
             <div className="flex space-x-3">
               <button
@@ -350,7 +265,7 @@ const Carrito = () => {
               </button>
               <button
                 onClick={processCheckout}
-                disabled={isProcessing || !emailPolicyAccepted}
+                disabled={isProcessing}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
               >
                 {isProcessing ? 'Procesando...' : 'Continuar'}

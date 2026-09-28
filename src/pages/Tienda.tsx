@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import CatalogDownloadDialog from '../components/CatalogDownloadDialog';
 import { products, getAllCategories } from '../data/products';
 import { Filter, Grid, List } from 'lucide-react';
 
@@ -71,14 +72,11 @@ const Tienda = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Catálogo de Productos
           </h1>
-          <a
-            href="/CATÁLOGO%202025.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mb-4 bg-[#019EE1] hover:bg-[#017bb0] text-white font-semibold px-6 py-3 rounded-lg shadow transition-colors text-lg"
-          >
-            Descargar Catálogo 2025 (PDF)
-          </a>
+          <CatalogDownloadDialog>
+            <button className="inline-block mb-4 bg-[#019EE1] hover:bg-[#017bb0] text-white font-semibold px-6 py-3 rounded-lg shadow transition-colors text-lg">
+              Ver catálogos
+            </button>
+          </CatalogDownloadDialog>
           <p className="text-lg text-gray-600">
             Descubre nuestra amplia gama de productos de limpieza industrial
           </p>

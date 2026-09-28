@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import SectorCard from '../components/SectorCard';
 import ProductShowcase from '../components/ProductShowcase';
 import FAQ from '../components/FAQ';
+import CatalogDownloadDialog from '../components/CatalogDownloadDialog';
 
 const Index = () => {
   const sectors = [
@@ -91,7 +92,7 @@ const Index = () => {
             <img src="/logo.png" alt="Logo Deterín" className="w-64 h-64 object-contain rounded-lg mx-auto" />
           </div>
           <p className="text-xl md:text-2xl mb-4 text-[#edf7fb]">
-            Fabricantes de Detergentes Industriales, limpiadores, desengrasantes y desinfectantes
+            FABRICANTE DE DETERGENTES INDUSTRIALES
           </p>
           <p className="text-lg md:text-xl mb-8 text-[#b3eaff] max-w-4xl mx-auto">
             Limpieza Profesional para Hostelería, Automoción, Lavanderías e Industria
@@ -104,13 +105,11 @@ const Index = () => {
               <Mail className="mr-2" />
               Contáctanos
             </Link>
-            <a
-              href="/CATÁLOGO 2025.pdf"
-              download
-              className="inline-flex items-center bg-blue-400 hover:bg-blue-100 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Ver Catálogo
-            </a>
+            <CatalogDownloadDialog>
+              <button className="inline-flex items-center bg-blue-400 hover:bg-blue-100 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+                Ver Catálogo
+              </button>
+            </CatalogDownloadDialog>
           </div>
         </div>
       </section>
@@ -193,13 +192,11 @@ const Index = () => {
               al máximo en cualquier entorno profesional. Desde desengrasantes potentes hasta detergentes específicos 
               para hostelería, pasando por productos ecológicos y fórmulas personalizadas.
             </p>
-            <Link 
-              href="/CATÁLOGO 2025.pdf"
-              download
-              className="inline-flex items-center bg-white hover:bg-gray-400 text-[#019EE1] px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Haz clic en nuestro catálogo
-            </Link>
+            <CatalogDownloadDialog>
+              <button className="inline-flex items-center bg-white hover:bg-gray-400 text-[#019EE1] px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+                Haz clic en nuestro catálogo
+              </button>
+            </CatalogDownloadDialog>
           </div>
           <ProductShowcase />
         </div>

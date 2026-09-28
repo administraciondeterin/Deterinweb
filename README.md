@@ -88,12 +88,13 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 2. Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido (ajusta los valores):
    ```env
    # Stripe
-   VITE_STRIPE_SECRET_KEY=sk_test_...
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_SECRET_KEY=sk_test_...
    # Gmail para envío de correos
    GMAIL_USER=tu_cuenta@gmail.com
    GMAIL_PASS=tu_contraseña_o_app_password
    # URL del frontend (para enlaces de confirmación)
-   FRONTEND_URL=http://localhost:5173
+   FRONTEND_URL=http://localhost:8080
    # Puerto del backend (opcional)
    PORT=3001
    ```

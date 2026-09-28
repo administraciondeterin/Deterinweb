@@ -1,22 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
-import type { Stripe } from '@stripe/stripe-js';
 
-let stripePromise: Promise<Stripe | null> | null = null;
-
-export const getStripe = (): Promise<Stripe | null> | null => {
-  const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
-  if (!publishableKey || typeof publishableKey !== 'string') {
-    console.error('Stripe: VITE_STRIPE_PUBLISHABLE_KEY no está definida.');
-    return null;
-  }
-  if (!/^pk_((test|live)_)/.test(publishableKey)) {
-    console.warn('Stripe: la clave pública no parece válida (debería empezar por pk_test_ o pk_live_).');
-  }
-  if (!stripePromise) {
-    stripePromise = loadStripe(publishableKey);
-  }
-  return stripePromise;
-};
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 // This file will contain the Stripe integration utilities
 // For now, it's a placeholder until we connect to Supabase and implement the edge functions
@@ -43,9 +28,9 @@ export interface CheckoutSessionData {
 
 export const initializeStripeCheckout = async (items: any[], customerEmail?: string) => {
   try {
-    const stripe = await (getStripe() || Promise.resolve(null));
+    const stripe = await stripePromise;
     if (!stripe) {
-      throw new Error('Stripe no está configurado (falta VITE_STRIPE_PUBLISHABLE_KEY).');
+      throw new Error('Falta configurar VITE_STRIPE_PUBLISHABLE_KEY');
     }
 
     // Transformar items del carrito al formato de Stripe

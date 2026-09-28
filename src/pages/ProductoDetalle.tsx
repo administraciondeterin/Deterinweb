@@ -5,7 +5,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getProductById } from '../data/products';
 import { useCart } from '../context/CartContext';
-import safetySheets from '../data/safetySheets.json';
 
 const ProductoDetalle = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,8 +14,6 @@ const ProductoDetalle = () => {
   const [addedToCart, setAddedToCart] = useState(false);
 
   const product = id ? getProductById(id) : null;
-  const safetySheetsMap = safetySheets as Record<string, string>;
-  const safetySheetUrl = product ? safetySheetsMap[product.id] : undefined;
 
   if (!product) {
     return (
@@ -155,19 +152,6 @@ const ProductoDetalle = () => {
                   </span>
                 ))}
               </div>
-
-              {safetySheetUrl && (
-                <div className="mb-6">
-                  <a
-                    href={safetySheetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                  >
-                    Ficha de seguridad
-                  </a>
-                </div>
-              )}
             </div>
 
             {/* Presentations and Price */}
