@@ -74,7 +74,7 @@ const Tienda = () => {
           </h1>
           <CatalogDownloadDialog>
             <button className="inline-block mb-4 bg-[#019EE1] hover:bg-[#017bb0] text-white font-semibold px-6 py-3 rounded-lg shadow transition-colors text-lg">
-              Ver catálogos
+              Ver catálogo
             </button>
           </CatalogDownloadDialog>
           <p className="text-lg text-gray-600">

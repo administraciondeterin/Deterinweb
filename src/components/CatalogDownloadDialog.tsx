@@ -20,9 +20,9 @@ const CatalogDownloadDialog = ({ children }: CatalogDownloadDialogProps) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Descarga de catálogos</DialogTitle>
+          <DialogTitle>Descarga del catálogo</DialogTitle>
           <DialogDescription>
-            Selecciona el catálogo que quieres descargar en PDF.
+            Descarga el catálogo 2025 en PDF.
           </DialogDescription>
         </DialogHeader>
 
